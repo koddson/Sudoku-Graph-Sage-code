@@ -1,0 +1,285 @@
+# General code for working with S2.
+
+# This section is to generate the adjacencies for S2, outputted in a file named “s2canadj.txt”;
+# Our vertex names and adjacencies are based on the canonical labeling of B2,
+# where the cells are labeled (i,j), 1 <= i,j <= n^2, 
+# where i is the row number (top to bottom) and j is the column number (left to right).
+
+o=open('./s2canadj.txt','w')
+o.write(str('S2=Graph({'))
+o.write(str('\n'))
+n = 2								# specify n here
+i = range(1, n^2 + 1)
+V = list(cartesian_product([i,i]))	# generates the tuples (1,1),…,(n^2,n^2)
+for k in range(len(V) - 1):			# don't need to specify adjacencies for vertex (n^2,n^2)
+	u = V[k]							# individually pulls out tuples
+	X = []							# initiates blank list to populate with u's neighbors
+	for m in range(k+1, len(V)):		# starts looking at vertices coming after u in the list
+		v = V[m]						
+		if u[0] == v[0] or u[1] == v[1] or ceil(u[0]/n) == ceil(v[0]/n) and ceil(u[1]/n) == ceil(v[1]/n): #checks for adjacency conditions
+			X.append(v)				# adds v to u's neighborhood if adjacency conditions are met
+	o.write(str(u))
+	o.write(str(':'))
+	o.write(str(X))					# puts this list in a Sage graph format
+	o.write(str(',\n'))
+o.write(str('})'))
+o.close
+
+# Open the file “s2canadj.txt” 
+# Copy and past the contents of this file to your working S2 file. We have done so below:
+
+S2=Graph({
+(1, 1):[(1, 2), (1, 3), (1, 4), (2, 1), (2, 2), (3, 1), (4, 1)],
+(1, 2):[(1, 3), (1, 4), (2, 1), (2, 2), (3, 2), (4, 2)],
+(1, 3):[(1, 4), (2, 3), (2, 4), (3, 3), (4, 3)],
+(1, 4):[(2, 3), (2, 4), (3, 4), (4, 4)],
+(2, 1):[(2, 2), (2, 3), (2, 4), (3, 1), (4, 1)],
+(2, 2):[(2, 3), (2, 4), (3, 2), (4, 2)],
+(2, 3):[(2, 4), (3, 3), (4, 3)],
+(2, 4):[(3, 4), (4, 4)],
+(3, 1):[(3, 2), (3, 3), (3, 4), (4, 1), (4, 2)],
+(3, 2):[(3, 3), (3, 4), (4, 1), (4, 2)],
+(3, 3):[(3, 4), (4, 3), (4, 4)],
+(3, 4):[(4, 3), (4, 4)],
+(4, 1):[(4, 2), (4, 3), (4, 4)],
+(4, 2):[(4, 3), (4, 4)],
+(4, 3):[(4, 4)],
+})
+
+# This section is to generate the adjacencies for S2, outputted in a file named “s2adj.txt”. 
+# Our vertex names (and adjacencies) are based on labeling the sudoku board; 
+# the top row is filled in, left to right, with 1, 2, …, n^2, in order. 
+# The next row receives n^2+1, n^2+2, …, 2n^2; the bottom right cell of the board receives n^4.
+
+o=open('./s2adj.txt','w')
+o.write(str('S2=Graph({'))
+o.write(str('\n'))
+n = 2
+i = range(1, n^2 + 1)
+V = list(cartesian_product([i,i]))
+for k in range(len(V) - 1):
+        u = list(V[k])
+        X = []
+        for m in range(k + 1, len(V)):
+                v = list(V[m])
+                if u[0] == v[0] or u[1] == v[1] or ceil(u[0]/n) == ceil(v[0]/n) and ceil(u[1]/n) == ceil(v[1]/n):
+                        X.append((v[0] - 1)*n^2 + v[1])
+        f = (u[0] - 1)*n^2 + u[1]
+        o.write(str(f))
+        o.write(str(':'))
+        o.write(str(X))
+        o.write(str('\n'))
+o.write(str('})'))
+o.close
+
+# Open the file “s2adj.txt”
+# Copy and past the contents of this file to your working S2 file. We have done so below:
+
+S2=Graph({
+1:[2, 3, 4, 5, 6, 9, 13],
+2:[3, 4, 5, 6, 10, 14],
+3:[4, 7, 8, 11, 15],
+4:[7, 8, 12, 16],
+5:[6, 7, 8, 9, 13],
+6:[7, 8, 10, 14],
+7:[8, 11, 15],
+8:[12, 16],
+9:[10, 11, 12, 13, 14],
+10:[11, 12, 13, 14],
+11:[12, 15, 16],
+12:[15, 16],
+13:[14, 15, 16],
+14:[15, 16],
+15:[16]
+})
+
+
+
+# This section is to demonstrate a proper n^2-coloring of the graph, 
+# given a proper (partial) coloring of the vertices corresponding to the top row of the board.
+# This is achieved by partitioning the vertices into specific (independent) sets.
+# Once partitioned, subgraphs are induced on these vertices,
+# and we verify that these induced subgraphs contain no edges (and hence are independent sets),
+# that each set has exactly n^2 vertices,
+# and that there are exactly n^2 such independent sets.
+# The results are saved to a file named “s2propcol.txt”.
+# Note that this requires the canonical labeling of the vertices.
+
+
+n = 2
+i = range(1, n^2 + 1)
+V = list(cartesian_product([i,i]))
+P = [[(1,j)] for j in range(1,n^2+1)]
+
+def f(x):
+	if x[0] == 1:
+		for m in range(len(P)):
+			if x[1] == P[m][0][1]:
+				P[m].append(u)
+	if 1 < x[0] <= n:
+		v = []
+		v.append(x[0] - 1)
+		v.append((x[1] + n)%(n^2))
+		if v[1] == 0:
+			v[1] = v[1] + n^2
+		f(v)
+	if x[0] > n:
+		z = []
+		z.append(x[0] - n)
+		if x[1]%n == 0:
+			z.append(x[1] + 1 - n)
+		else:
+			z.append(x[1] + 1)
+		f(z)
+
+for k in range(n^2, len(V)):
+	u = V[k]
+	f(u)
+
+o=open('./s2propcol.txt','w')
+X = list(range(1,n^2+1))
+for t in range(len(P)):
+	X[t]=S2.subgraph(P[t],algorithm="add")
+	o.write(str('Subgraph '))
+	o.write(str(t + 1))
+	o.write(str(' is on vertices ')
+	o.write(str(X[t].vertices()))
+	o.write(str('\n')
+	o.write(str('This subgraph has '))
+	o.write(str(X[t].order()))
+	o.write(str(' vertices and '))
+	o.write(str(X[t].size()))
+	o.write(str(' edges.'))
+	o.write(str('\n'))
+o.close
+
+#######
+# Our results for this are pasted below:
+
+Subgraph 1 is on vertices [(1, 1), (2, 3), (3, 2), (4, 4)]
+This subgraph has 4 vertices and 0 edges.
+Subgraph 2 is on vertices [(1, 2), (2, 4), (3, 1), (4, 3)]
+This subgraph has 4 vertices and 0 edges.
+Subgraph 3 is on vertices [(1, 3), (2, 1), (3, 4), (4, 2)]
+This subgraph has 4 vertices and 0 edges.
+Subgraph 4 is on vertices [(1, 4), (2, 2), (3, 3), (4, 1)]
+This subgraph has 4 vertices and 0 edges.
+
+#######
+
+#######
+
+#######
+
+#######
+
+# This section generates a .png file of an embedding of the graph in a file named “s2visual.png”.
+
+o=open('./s2visual.png','w')
+o=S2.plot(layout='circular',vertex_labels=False,vertex_size=50,vertex_colors=(1,1,1))
+o.save('s2visual.png')
+o.close
+
+#######
+
+#######
+
+# This section tests various properties of the graph and outputs the results in a file named “s2info.txt”. 
+# Be warned that some of these processes are computationally expensive, especially for n > 3
+# (particularly .is_circulant)
+
+n=2
+q=3*n^2-2*n-1
+a=S2.size()
+b=S2.is_regular(q)
+c=S2.clique_number()
+d=S2.independent_set(value_only=True)
+e=S2.is_planar()
+f=S2.is_strongly_regular()
+g=S2.chromatic_number()
+h=S2.is_cayley()
+i=S2.is_vertex_transitive()
+j=S2.is_edge_transitive()
+k=S2.is_hamiltonian()
+l=S2.vertex_connectivity()
+p=S2.is_circulant()
+r=S2.automorphism_group()
+
+o=open('./s2info.txt','w')
+o.write(str('The number of edges in S2 is '))
+o.write(str(a))
+o.write(str('\n'))
+o.write(str('It is '))
+o.write(str(b))
+o.write(str(' that S2 is '))
+o.write(str(q))
+o.write(str('-regular'))
+o.write(str('\n'))
+o.write(str('The clique number is '))
+o.write(str(c))
+o.write(str('\n'))
+o.write(str('The independence number is '))
+o.write(str(d))
+o.write(str('\n'))
+o.write(str('It is '))
+o.write(str(e))
+o.write(str(' that S2 is planar'))
+o.write(str('\n'))
+o.write(str('It is '))
+o.write(str(f))
+o.write(str(' that S2 is strongly regular'))
+o.write(str('\n'))
+o.write(str('The chromatic number is '))
+o.write(str(g))
+o.write(str('\n'))
+o.write(str('It is '))
+o.write(str(h))
+o.write(str(' that S2 is a Cayley graph for some group'))
+o.write(str('\n'))
+o.write(str('It is '))
+o.write(str(i))
+o.write(str(' that S2 is vertex transitive'))
+o.write(str('\n'))
+o.write(str('It is '))
+o.write(str(j))
+o.write(str(' that S2 is edge transitive'))
+o.write(str('\n'))
+o.write(str('It is '))
+o.write(str(k))
+o.write(str(' that S2 is hamiltonian'))
+o.write(str('\n'))
+o.write(str('The vertex connectivity is '))
+o.write(str(l))
+o.write(str('\n'))
+o.write(str('It is '))
+o.write(str(p))
+o.write(str(' that S2 is a circulant graph.'))
+o.write(str('\n'))
+o.write(str('S2 has automorphism group order '))
+o.write(str(r.order()))
+o.write(str('\n'))
+o.write(str('This has factorization '))
+o.write(str(factor(r.order())))
+o.close
+
+#######
+# Our results for this are pasted below:
+
+The number of edges in S2 is 56
+It is True that S2 is 7-regular
+The clique number is 4
+The independence number is 4
+It is False that S2 is planar
+It is False that S2 is strongly regular
+The chromatic number is 4
+It is True that S2 is a Cayley graph for some group
+It is True that S2 is vertex transitive
+It is False that S2 is edge transitive
+It is True that S2 is hamiltonian
+The vertex connectivity is 7
+It is False that S2 is a circulant graph.
+S2 has automorphism group order 128
+This has factorization
+2^7
+
+#######
