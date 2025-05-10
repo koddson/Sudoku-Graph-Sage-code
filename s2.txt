@@ -283,3 +283,11 @@ This has factorization
 2^7
 
 #######
+#Additional result only for S2 (since for any n > 2, computation demand exceeds available capabilities):
+
+#This section finds the chromatic polynomial for the 4x4 sudoku (S2). This can be implemented using either of the Sage adjacency dictionaries defined above; for the purpose of this text, the definition using vertices 1, ..., 16 was used:
+
+S2.chromatic_polynomial()
+
+#The result is pasted below:
+x^16 - 56*x^15 + 1492*x^14 - 25072*x^13 + 296918*x^12 - 2621552*x^11 + 17795572*x^10 - 94352168*x^9 + 392779169*x^8 - 1279118840*x^7 + 3217758336*x^6 - 6107865464*x^5 + 8413745644*x^4 - 7877463064*x^3 + 4436831332*x^2 - 1117762248*x
