@@ -291,3 +291,6 @@ S2.chromatic_polynomial()
 
 #The result is pasted below:
 x^16 - 56*x^15 + 1492*x^14 - 25072*x^13 + 296918*x^12 - 2621552*x^11 + 17795572*x^10 - 94352168*x^9 + 392779169*x^8 - 1279118840*x^7 + 3217758336*x^6 - 6107865464*x^5 + 8413745644*x^4 - 7877463064*x^3 + 4436831332*x^2 - 1117762248*x
+
+#A factored version is obtained by appending ".factored()" to the chromatic polynomial command. The result is pasted below:
+(x^12 - 50*x^11 + 1181*x^10 - 17430*x^9 + 179047*x^8 - 1348454*x^7 + 7630751*x^6 - 32660386*x^5 + 104787868*x^4 - 245342880*x^3 + 397072192*x^2 - 397933424*x + 186293708)*(x - 1)*(x - 2)*(x - 3)*x
